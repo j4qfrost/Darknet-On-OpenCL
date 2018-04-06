@@ -10,3 +10,7 @@ x64
 *.pdb
 *.tlog
 *.obj
+build
+darknet
+yolov2.cfg
+yolov2.weights

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-set(CMAKE_CXX_FLAGS "-std=c++11 -O2 -DNDEBUG " )
+set(CMAKE_CXX_FLAGS "-std=c++11 -O2 -DNDEBUG -Wno-c++11-narrowing" )
 
 set(OPENCV  ON)
 set(GPU     ON)
@@ -11,7 +11,7 @@ if (OpenCL_FOUND AND GPU)
 	ADD_DEFINITIONS(-DGPU=1)
 	include_directories(${OpenCL_INCLUDE_DIR})
 	link_libraries(${OpenCL_LIBRARY})
-	link_libraries(${PROJECT_SOURCE_DIR}/darknet_cl/clBLAS/libclBLAS.so)
+	link_libraries(${PROJECT_SOURCE_DIR}/darknet_cl/clBLAS/libclBLAS.dylib)
 endif()
 
 if (OpenCV_FOUND AND OPENCV)
@@ -26,6 +26,6 @@ aux_source_directory(./darknet_cl/example DIR_EXAMPLE_SRC)
 include_directories(./darknet_cl/include)
 include_directories(./darknet_cl/clBLAS)
 
-link_libraries(libpthread.so)
+link_libraries(/usr/lib/libpthread.dylib)
 
 add_executable(darknet_cl ${DIR_LIB_SRC} ${DIR_EXAMPLE_SRC})
