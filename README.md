@@ -31,6 +31,44 @@ and OPENCV_LIB first.<br>
 mkdir build && cd build<br>
 cmake ../<br>
 make<br>
+
+### MacOSX
+OpenCL is already installed on MacOSX
+
+#### cBLAS
+Use brew to install clblas
+
+```
+brew install clblas
+```
+
+#### Fix OpenCL Includes
+
+```
+# find all files with the wrong include
+grep --include=\*.{c,h} -rnw './darknet_cl/include' -e "#include <CL/cl.h>"
+```
+
+Replace with:
+
+```
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
+```
+
+#### Build
+
+Please change the opencv path to your installation folder (the folder should contain following file: `OpenCVConfig.cmake`).
+
+```
+mkdir build && cd build
+cmake -D CMAKE_CXX_FLAGS="-Wno-c++11-narrowing" -DOpenCV_DIR="/usr/local/Cellar/opencv/3.4.1_2/share/OpenCV" ..
+make
+```
+
 ## Usage
 Once you compiled this project, it has the same usage as darknet,<br>
 you can find it [here](https://pjreddie.com/darknet/).<br>
