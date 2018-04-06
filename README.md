@@ -65,7 +65,7 @@ Please change the opencv path to your installation folder (the folder should con
 
 ```
 mkdir build && cd build
-cmake -D CMAKE_CXX_FLAGS="-Wno-c++11-narrowing" -DOpenCV_DIR="/usr/local/Cellar/opencv/3.4.1_2/share/OpenCV" ..
+cmake -DOpenCV_DIR="/usr/local/Cellar/opencv/3.4.1_2/share/OpenCV" ..
 make
 ```
 
