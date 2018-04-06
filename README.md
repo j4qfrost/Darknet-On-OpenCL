@@ -69,6 +69,19 @@ cmake -DOpenCV_DIR="/usr/local/Cellar/opencv/3.4.1_2/share/OpenCV" ..
 make
 ```
 
+Copy `libclBLAS.dylib` into include and replace `libclBLAS.co` with `libclBLAS.dylib` in following files:
+
+```
+link.txt
+build.make
+```
+
+Then run:
+
+```
+make
+```
+
 ## Usage
 Once you compiled this project, it has the same usage as darknet,<br>
 you can find it [here](https://pjreddie.com/darknet/).<br>
