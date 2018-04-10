@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-set(CMAKE_CXX_FLAGS "-std=c++11 -O2 -DNDEBUG -Wno-c++11-narrowing" )
+set(CMAKE_CXX_FLAGS "-std=c++11 -O2 -DNDEBUG -Wno-c++11-narrowing -Wnull-conversion" )
 
 set(OPENCV  ON)
 set(GPU     ON)
