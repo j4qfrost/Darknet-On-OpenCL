@@ -26,6 +26,7 @@ aux_source_directory(./darknet_cl/example DIR_EXAMPLE_SRC)
 include_directories(./darknet_cl/include)
 include_directories(./darknet_cl/clBLAS)
 
-link_libraries(/usr/lib/libpthread.dylib)
+link_libraries(/usr/lib/libSystem.B.dylib)
+# link_libraries(/usr/lib/libpthread.dylib)
 
 add_executable(darknet_cl ${DIR_LIB_SRC} ${DIR_EXAMPLE_SRC})
