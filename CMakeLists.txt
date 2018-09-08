@@ -12,7 +12,7 @@ if (OpenCL_FOUND AND GPU)
 	ADD_DEFINITIONS(-DGPU=1)
 	include_directories(${OpenCL_INCLUDE_DIR})
 	link_libraries(${OpenCL_LIBRARY})
-	link_libraries(${PROJECT_SOURCE_DIR}/darknet_cl/clBLAS/libclBLAS.so)
+	link_libraries(/usr/local/lib64/libclBLAS.so.2)
 endif()
 
 if (OpenCV_FOUND AND OPENCV)
