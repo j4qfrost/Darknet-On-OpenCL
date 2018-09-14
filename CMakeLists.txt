@@ -5,10 +5,10 @@ set(OPENCV   ON)
 set(GPU      ON)
 set(BUILDLIB OFF)
 
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} )
-
-find_package(OpenCL)
 find_package(OpenCV)
+
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} )
+find_package(OpenCL)
 
 if (OpenCL_FOUND AND GPU)
 	ADD_DEFINITIONS(-DGPU=1)
