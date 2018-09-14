@@ -15,7 +15,7 @@ extern int gpu_index;
     #define BLOCK 512
 	#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 	#include <CL/cl.h>
-	#include<clBLAS.h>
+	#include<clblast.h>
     #ifdef CUDNN
     #include "cudnn.h"
     #endif

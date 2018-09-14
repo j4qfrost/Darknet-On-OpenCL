@@ -14,7 +14,7 @@ if (OpenCL_FOUND AND GPU)
 	ADD_DEFINITIONS(-DGPU=1)
 	include_directories(${OpenCL_INCLUDE_DIR})
 	link_libraries(${OpenCL_LIBRARY})
-	link_libraries(/usr/local/lib64/libclBLAS.so.2)
+	link_libraries(/usr/local/lib/libclblast.so)
 endif()
 
 if (OpenCV_FOUND AND OPENCV)
@@ -27,7 +27,6 @@ aux_source_directory(./darknet_cl/src DIR_LIB_SRC)
 aux_source_directory(./darknet_cl/example DIR_EXAMPLE_SRC)
 
 include_directories(./darknet_cl/include)
-include_directories(./darknet_cl/clBLAS)
 
 link_libraries(libpthread.so)
 
