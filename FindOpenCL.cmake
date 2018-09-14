@@ -1,160 +1,166 @@
-# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
+# ########################################################################
+# Copyright 2015 Advanced Micro Devices, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ########################################################################
 
-#.rst:
-# FindOpenCL
-# ----------
+# Locate an OpenCL implementation.
+# Currently supports AMD APP SDK (http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx/)
 #
-# Try to find OpenCL
+# Defines the following variables:
 #
-# IMPORTED Targets
-# ^^^^^^^^^^^^^^^^
+#   OPENCL_FOUND - Found the OPENCL framework
+#   OPENCL_INCLUDE_DIRS - Include directories
 #
-# This module defines :prop_tgt:`IMPORTED` target ``OpenCL::OpenCL``, if
-# OpenCL has been found.
+# Also defines the library variables below as normal
+# variables.  These contain debug/optimized keywords when
+# a debugging library is found.
 #
-# Result Variables
-# ^^^^^^^^^^^^^^^^
+#   OPENCL_LIBRARIES - libopencl
 #
-# This module defines the following variables::
+# Accepts the following variables as input:
 #
-#   OpenCL_FOUND          - True if OpenCL was found
-#   OpenCL_INCLUDE_DIRS   - include directories for OpenCL
-#   OpenCL_LIBRARIES      - link against this library to use OpenCL
-#   OpenCL_VERSION_STRING - Highest supported OpenCL version (eg. 1.2)
-#   OpenCL_VERSION_MAJOR  - The major version of the OpenCL implementation
-#   OpenCL_VERSION_MINOR  - The minor version of the OpenCL implementation
+#   OPENCL_ROOT - (as a CMake or environment variable)
+#                The root directory of the OpenCL implementation found
 #
-# The module will also define two cache variables::
+#   FIND_LIBRARY_USE_LIB64_PATHS - Global property that controls whether findOpenCL should search for
+#                              64bit or 32bit libs
+#-----------------------
+# Example Usage:
 #
-#   OpenCL_INCLUDE_DIR    - the OpenCL include directory
-#   OpenCL_LIBRARY        - the path to the OpenCL library
+#    find_package(OPENCL REQUIRED)
+#    include_directories(${OPENCL_INCLUDE_DIRS})
 #
+#    add_executable(foo foo.cc)
+#    target_link_libraries(foo ${OPENCL_LIBRARIES})
+#
+#-----------------------
+include( CheckSymbolExists )
+include( CMakePushCheckState )
 
-function(_FIND_OPENCL_VERSION)
-  include(CheckSymbolExists)
-  include(CMakePushCheckState)
-  set(CMAKE_REQUIRED_QUIET ${OpenCL_FIND_QUIETLY})
+if( DEFINED OPENCL_ROOT OR DEFINED ENV{OPENCL_ROOT})
+  message( STATUS "Defined OPENCL_ROOT: ${OPENCL_ROOT}, ENV{OPENCL_ROOT}: $ENV{OPENCL_ROOT}" )
+endif( )
 
-  CMAKE_PUSH_CHECK_STATE()
-  foreach(VERSION "2_2" "2_1" "2_0" "1_2" "1_1" "1_0")
-    set(CMAKE_REQUIRED_INCLUDES "${OpenCL_INCLUDE_DIR}")
-
-    if(APPLE)
-      CHECK_SYMBOL_EXISTS(
-        CL_VERSION_${VERSION}
-        "${OpenCL_INCLUDE_DIR}/Headers/cl.h"
-        OPENCL_VERSION_${VERSION})
-    else()
-      CHECK_SYMBOL_EXISTS(
-        CL_VERSION_${VERSION}
-        "${OpenCL_INCLUDE_DIR}/CL/cl.h"
-        OPENCL_VERSION_${VERSION})
-    endif()
-
-    if(OPENCL_VERSION_${VERSION})
-      string(REPLACE "_" "." VERSION "${VERSION}")
-      set(OpenCL_VERSION_STRING ${VERSION} PARENT_SCOPE)
-      string(REGEX MATCHALL "[0-9]+" version_components "${VERSION}")
-      list(GET version_components 0 major_version)
-      list(GET version_components 1 minor_version)
-      set(OpenCL_VERSION_MAJOR ${major_version} PARENT_SCOPE)
-      set(OpenCL_VERSION_MINOR ${minor_version} PARENT_SCOPE)
-      break()
-    endif()
-  endforeach()
-  CMAKE_POP_CHECK_STATE()
-endfunction()
-
-find_path(OpenCL_INCLUDE_DIR
-  NAMES
-    CL/cl.h OpenCL/cl.h
+find_path(OPENCL_INCLUDE_DIRS
+  NAMES OpenCL/cl.h CL/cl.h
+  HINTS
+    ${OPENCL_ROOT}/include
+    $ENV{OPENCL_ROOT}/include
+    $ENV{AMDAPPSDKROOT}/include
+    $ENV{CUDA_PATH}/include
   PATHS
-    ENV "PROGRAMFILES(X86)"
-    ENV AMDAPPSDKROOT
-    ENV INTELOCLSDKROOT
-    ENV NVSDKCOMPUTE_ROOT
-    ENV CUDA_PATH
-    ENV ATISTREAMSDKROOT
-    ENV OCL_ROOT
-  PATH_SUFFIXES
-    include
-    OpenCL/common/inc
-    "AMD APP/include")
+    /usr/include
+    /usr/local/include
+    /usr/local/cuda/include
+  DOC "OpenCL header file path"
+)
+mark_as_advanced( OPENCL_INCLUDE_DIRS )
+message( STATUS "OPENCL_INCLUDE_DIRS: ${OPENCL_INCLUDE_DIRS}" )
 
-_FIND_OPENCL_VERSION()
+set( OpenCL_VERSION "0.0" )
 
-if(WIN32)
-  if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    find_library(OpenCL_LIBRARY
-      NAMES OpenCL
-      PATHS
-        ENV "PROGRAMFILES(X86)"
-        ENV AMDAPPSDKROOT
-        ENV INTELOCLSDKROOT
-        ENV CUDA_PATH
-        ENV NVSDKCOMPUTE_ROOT
-        ENV ATISTREAMSDKROOT
-        ENV OCL_ROOT
-      PATH_SUFFIXES
-        "AMD APP/lib/x86"
-        lib/x86
-        lib/Win32
-        OpenCL/common/lib/Win32)
-  elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    find_library(OpenCL_LIBRARY
-      NAMES OpenCL
-      PATHS
-        ENV "PROGRAMFILES(X86)"
-        ENV AMDAPPSDKROOT
-        ENV INTELOCLSDKROOT
-        ENV CUDA_PATH
-        ENV NVSDKCOMPUTE_ROOT
-        ENV ATISTREAMSDKROOT
-        ENV OCL_ROOT
-      PATH_SUFFIXES
-        "AMD APP/lib/x86_64"
-        lib/x86_64
-        lib/x64
-        OpenCL/common/lib/x64)
-  endif()
-else()
-  find_library(OpenCL_LIBRARY
+cmake_push_check_state( RESET )
+set( CMAKE_REQUIRED_INCLUDES "${OPENCL_INCLUDE_DIRS}" )
+
+# Bug in check_symbol_exists prevents us from specifying a list of files, so we loop
+# Only 1 of these files will exist on a system, so the other file will not clobber the output variable
+if( APPLE )
+   set( CL_HEADER_FILE "OpenCL/cl.h" )
+else( )
+   set( CL_HEADER_FILE "CL/cl.h" )
+endif( )
+
+check_symbol_exists( CL_VERSION_2_0 ${CL_HEADER_FILE} HAVE_CL_2_0 )
+check_symbol_exists( CL_VERSION_1_2 ${CL_HEADER_FILE} HAVE_CL_1_2 )
+check_symbol_exists( CL_VERSION_1_1 ${CL_HEADER_FILE} HAVE_CL_1_1 )
+# message( STATUS "HAVE_CL_2_0: ${HAVE_CL_2_0}" )
+# message( STATUS "HAVE_CL_1_2: ${HAVE_CL_1_2}" )
+# message( STATUS "HAVE_CL_1_1: ${HAVE_CL_1_1}" )
+
+# set OpenCL_VERSION to the highest detected version
+# if( HAVE_CL_2_0 )
+#   set( OpenCL_VERSION "2.0" )
+if( HAVE_CL_1_2 )
+  set( OpenCL_VERSION "1.2" )
+elseif( HAVE_CL_1_1 )
+  set( OpenCL_VERSION "1.1" )
+endif( )
+
+cmake_pop_check_state( )
+
+# Search for 64bit libs if FIND_LIBRARY_USE_LIB64_PATHS is set to true in the global environment, 32bit libs else
+get_property( LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS )
+if( LIB64 )
+  message( STATUS "FindOpenCL searching for 64-bit libraries" )
+else( )
+  message( STATUS "FindOpenCL searching for 32-bit libraries" )
+endif( )
+
+if( LIB64 )
+  find_library( OPENCL_LIBRARIES
     NAMES OpenCL
+    HINTS
+      ${OPENCL_ROOT}/lib
+      $ENV{OPENCL_ROOT}/lib
+      $ENV{AMDAPPSDKROOT}/lib
+      $ENV{CUDA_PATH}/lib
+    DOC "OpenCL dynamic library path"
+    PATH_SUFFIXES x86_64 x64 x86_64/sdk
     PATHS
-      ENV AMDAPPSDKROOT
-      ENV CUDA_PATH
-    PATH_SUFFIXES
-      lib/x86_64
-      lib/x64
-      lib
-      lib64)
-endif()
+    /usr/lib
+    /usr/local/cuda/lib
+  )
+else( )
+  find_library( OPENCL_LIBRARIES
+    NAMES OpenCL
+    HINTS
+      ${OPENCL_ROOT}/lib
+      $ENV{OPENCL_ROOT}/lib
+      $ENV{AMDAPPSDKROOT}/lib
+      $ENV{CUDA_PATH}/lib
+    DOC "OpenCL dynamic library path"
+    PATH_SUFFIXES x86 Win32
+    PATHS
+    /usr/lib
+    /usr/local/cuda/lib
+  )
+endif( )
+mark_as_advanced( OPENCL_LIBRARIES )
 
-set(OpenCL_LIBRARIES ${OpenCL_LIBRARY})
-set(OpenCL_INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
+# message( STATUS "OpenCL_FIND_VERSION: ${OpenCL_FIND_VERSION}" )
+if( OpenCL_VERSION VERSION_LESS OpenCL_FIND_VERSION )
+    message( FATAL_ERROR "Requested OpenCL version: ${OpenCL_FIND_VERSION}, Found OpenCL version: ${OpenCL_VERSION}" )
+endif( )
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
-find_package_handle_standard_args(
-  OpenCL
-  FOUND_VAR OpenCL_FOUND
-  REQUIRED_VARS OpenCL_LIBRARY OpenCL_INCLUDE_DIR
-  VERSION_VAR OpenCL_VERSION_STRING)
+# If we asked for OpenCL 1.2, and we found a version installed greater than that, pass the 'use deprecated' flag
+if( (OpenCL_FIND_VERSION VERSION_LESS "2.0") AND (OpenCL_VERSION VERSION_GREATER OpenCL_FIND_VERSION) )
+    add_definitions( -DCL_USE_DEPRECATED_OPENCL_2_0_APIS )
 
-mark_as_advanced(
-  OpenCL_INCLUDE_DIR
-  OpenCL_LIBRARY)
+    # If we asked for OpenCL 1.1, and we found a version installed greater than that, pass the 'use deprecated' flag
+    if( (OpenCL_FIND_VERSION VERSION_LESS "1.2") AND (OpenCL_VERSION VERSION_GREATER OpenCL_FIND_VERSION) )
+        add_definitions( -DCL_USE_DEPRECATED_OPENCL_1_1_APIS )
+    endif( )
+endif( )
 
-if(OpenCL_FOUND AND NOT TARGET OpenCL::OpenCL)
-  if(OpenCL_LIBRARY MATCHES "/([^/]+)\\.framework$")
-    add_library(OpenCL::OpenCL INTERFACE IMPORTED)
-    set_target_properties(OpenCL::OpenCL PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${OpenCL_LIBRARY}")
-  else()
-    add_library(OpenCL::OpenCL UNKNOWN IMPORTED)
-    set_target_properties(OpenCL::OpenCL PROPERTIES
-      IMPORTED_LOCATION "${OpenCL_LIBRARY}")
-  endif()
-  set_target_properties(OpenCL::OpenCL PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${OpenCL_INCLUDE_DIRS}")
+include( FindPackageHandleStandardArgs )
+FIND_PACKAGE_HANDLE_STANDARD_ARGS( OPENCL
+    REQUIRED_VARS OPENCL_LIBRARIES OPENCL_INCLUDE_DIRS
+    VERSION_VAR OpenCL_VERSION
+    )
+
+if( NOT OPENCL_FOUND )
+    message( STATUS "FindOpenCL looked for libraries named: OpenCL" )
+else( )
+    message(STATUS "FindOpenCL ${OPENCL_LIBRARIES}, ${OPENCL_INCLUDE_DIRS}")
 endif()
