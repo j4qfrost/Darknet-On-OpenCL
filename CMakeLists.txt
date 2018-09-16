@@ -28,7 +28,7 @@ aux_source_directory(./darknet_cl/example DIR_EXAMPLE_SRC)
 
 include_directories(./darknet_cl/include)
 
-# link_libraries(/usr/lib/libpthread.dylib)
+link_libraries(libpthread.so)
 
 if (BUILDLIB)
 	add_library(darknet SHARED ${DIR_LIB_SRC})
