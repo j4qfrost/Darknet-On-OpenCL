@@ -28,7 +28,6 @@ aux_source_directory(./darknet_cl/example DIR_EXAMPLE_SRC)
 
 include_directories(./darknet_cl/include)
 
-link_libraries(/usr/lib/libSystem.B.dylib)
 # link_libraries(/usr/lib/libpthread.dylib)
 
 if (BUILDLIB)
