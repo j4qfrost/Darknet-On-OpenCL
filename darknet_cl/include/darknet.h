@@ -14,8 +14,17 @@ extern int gpu_index;
 #ifdef GPU
     #define BLOCK 512
 	#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+<<<<<<< HEAD
 	#include <CL/cl.h>
 	#include<clblast.h>
+=======
+	#if defined(__APPLE__) || defined(__MACOSX)
+    #include <OpenCL/cl.h>
+    #else
+    #include <CL/cl.h>
+    #endif
+	#include<clBLAS.h>
+>>>>>>> 6c3456cd850c04284f43da9cfa7e9b053b185d39
     #ifdef CUDNN
     #include "cudnn.h"
     #endif
